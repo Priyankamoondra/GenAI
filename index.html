@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe Digitizer</title>
+    <style>
+        :root {
+            --primary: #5762D5;
+            --secondary: #A5BBFF;
+            --light: #F5F7FF;
+            --dark: #2A324B;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --gray: #EAEAEA;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4752c4;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            color: #555;
+        }
+        
+        .upload-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--secondary);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .upload-area p {
+            color: #777;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-area input {
+            display: none;
+        }
+        
+        .collections-container {
+            margin-top: 3rem;
+        }
+        
+        .collections-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .collection-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .collection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .collection-image {
+            height: 200px;
+            background-color: var(--gray);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .collection-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .collection-category {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(42, 50, 75, 0.8);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+        }
+        
+        .collection-info {
+            padding: 15px;
+        }
+        
+        .collection-info h3 {
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .collection-info p {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .collection-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tag {
+            background-color: var(--light);
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            color: var(--primary);
+        }
+        
+        footer {
+            background-color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        
+        .footer-links a {
+            text-decoration: none;
+            color: var(--dark);
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .processing-content {
+            text-align: center;
+        }
+        
+        .processing-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid white;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Avatar Feature Styles */
+        .avatar-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 4rem;
+        }
+        
+        .avatar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .avatar-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .avatar-preview {
+            flex: 1;
+            min-width: 280px;
+            background-color: var(--light);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .avatar-preview img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        
+        .avatar-controls {
+            flex: 1;
+            min-width: 280px;
+        }
+        
+        .avatar-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .avatar-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+        
+        .avatar-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .avatar-item {
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .avatar-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .avatar-item.selected {
+            border-color: var(--primary);
+        }
+        
+        .avatar-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        
+        .avatar-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .avatar-message {
+            background-color: var(--light);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .outfit-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .outfit-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .outfit-pieces {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        
+        .outfit-piece {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .outfit-piece img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        
+        .outfit-piece p {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .outfit-actions {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--gray);
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                display: none;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .avatar-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-tshirt"></i>
+                <span>Wardrobe Digitizer</span>
+            </div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">My Collections</a>
+                <a href="#">Style Analysis</a>
+                <a href="#">Virtual Try-On</a>
+                <a href="#">Outfit Ideas</a>
+            </div>
+            <div class="user-actions">
+                <button class="btn btn-outline">Login</button>
+                <button class="btn btn-primary">Sign Up</button>
+            </div>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h1>Digitize Your Wardrobe</h1>
+            <p>Upload photos of your clothing items and let our AI analyze and organize them into smart collections. Try on clothes on your personalized avatar!</p>
+            <button class="btn btn-primary">Get Started</button>
+        </section>
+        
+        <section class="upload-container">
+            <h2>Add to Your Digital Wardrobe</h2>
+            <div class="upload-area" id="uploadArea">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <h3>Drag & Drop or Click to Upload</h3>
+                <p>Supported formats: JPG, PNG, HEIC (max 10MB)</p>
+                <button class="btn btn-primary">Select Files</button>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+            <div id="uploadPreview"></div>
+            
+            <div id="processingOverlay" class="processing-overlay">
+                <div class="processing-content">
+                    <div class="processing-spinner"></div>
+                    <h3>Analyzing your wardrobe item...</h3>
+                    <p>Our AI is identifying style, occasion, and other details.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Avatar Feature Section -->
+        <section class="avatar-container">
+            <div class="avatar-header">
+                <h2>Virtual Try-On</h2>
+                <button class="btn btn-outline" id="customizeAvatar">Customize Avatar</button>
+            </div>
+            
+            <div class="avatar-content">
+                <div class="avatar-preview">
+                    <img src="/api/placeholder/300/450" alt="Avatar Preview" id="avatarImage">
+                    <h3>Your Avatar</h3>
+                    <p>Try on your clothes and create outfits</p>
+                    <div class="avatar-btn-group">
+                        <button class="btn btn-primary" id="saveOutfit">Save Outfit</button>
+                        <button class="btn btn-outline" id="shareAvatar">Share</button>
+                    </div>
+                </div>
+                
+                <div class="avatar-controls">
+                    <div class="avatar-tabs">
+                        <div class="avatar-tab active" data-tab="clothes">Clothes</div>
+                        <div class="avatar-tab" data-tab="outfits">Saved Outfits</div>
+                        <div class="avatar-tab" data-tab="suggestions">Suggestions</div>
+                    </div>
+                    
+                    <div class="tab-content active" id="clothesTab">
+                        <div class="collections-header">
+                            <h3>Your Wardrobe</h3>
+                            <select id="categoryFilter">
+                                <option value="all">All Items</option>
+                                <option value="tops">Tops</option>
+                                <option value="bottoms">Bottoms</option>
+                                <option value="dresses">Dresses</option>
+                                <option value="outerwear">Outerwear</option>
+                                <option value="shoes">Shoes</option>
+                                <option value="accessories">Accessories</option>
+                            </select>
+                        </div>
+                        
+                        <div class="avatar-grid" id="clothesGrid">
+                            <!-- Clothing items will be populated here -->
+                        </div>
+                        
+                        <div class="avatar-message">
+                            <p>Drag items to different body areas or click to try them on!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="outfitsTab">
+                        <div class="outfit-card">
+                            <div class="outfit-header">
+                                <h3>Casual Friday</h3>
+                                <span>Created 2 days ago</span>
+                            </div>
+                            <div class="outfit-pieces">
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Blue Shirt</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Jeans</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Sneakers</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Watch</p>
+                                </div>
+                            </div>
+                            <div class="outfit-actions">
+                                <button class="btn btn-outline btn-sm">Edit</button>
+                                <button class="btn btn-primary btn-sm">Try On</button>
+                            </div>
+                        </div>
+                        
+                        <div class="outfit-card">
+                            <div class="outfit-header">
+                                <h3>Business Meeting</h3>
+                                <span>Created 1 week ago</span>
+                            </div>
+                            <div class="outfit-pieces">
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Blazer</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>White Shirt</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Slacks</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Dress Shoes</p>
+                                </div>
+                            </div>
+                            <div class="outfit-actions">
+                                <button class="btn btn-outline btn-sm">Edit</button>
+                                <button class="btn btn-primary btn-sm">Try On</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="suggestionsTab">
+                        <div class="collections-header">
+                            <h3>AI Outfit Suggestions</h3>
+                            <select id="occasionFilter">
+                                <option value="casual">Casual</option>
+                                <option value="formal">Formal</option>
+                                <option value="business">Business</option>
+                                <option value="date">Date Night</option>
+                                <option value="vacation">Vacation</option>
+                            </select>
+                        </div>
+                        
+                        <div class="outfit-card">
+                            <div class="outfit-header">
+                                <h3>Smart Casual</h3>
+                                <span>AI Recommended</span>
+                            </div>
+                            <div class="outfit-pieces">
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Blazer</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>T-Shirt</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Jeans</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Loafers</p>
+                                </div>
+                            </div>
+                            <div class="outfit-actions">
+                                <button class="btn btn-outline btn-sm">Save</button>
+                                <button class="btn btn-primary btn-sm">Try On</button>
+                            </div>
+                        </div>
+                        
+                        <div class="outfit-card">
+                            <div class="outfit-header">
+                                <h3>Weekend Style</h3>
+                                <span>AI Recommended</span>
+                            </div>
+                            <div class="outfit-pieces">
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Sweater</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Chinos</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Boots</p>
+                                </div>
+                                <div class="outfit-piece">
+                                    <img src="/api/placeholder/60/60" alt="Outfit piece">
+                                    <p>Beanie</p>
+                                </div>
+                            </div>
+                            <div class="outfit-actions">
+                                <button class="btn btn-outline btn-sm">Save</button>
+                                <button class="btn btn-primary btn-sm">Try On</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="collections-container">
+            <div class="collections-header">
+                <h2>Your Collections</h2>
+                <button class="btn btn-outline">View All</button>
+            </div>
+            <div class="collections-grid" id="collectionsGrid">
+                <!-- Collection cards will be added here -->
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="logo">
+                <i class="fa-solid fa-tshirt"></i>
+                <span>Wardrobe Digitizer</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">About Us</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact</a>
+                <a href="#">Help Center</a>
+            </div>
+            <p>&copy; 2025 Wardrobe Digitizer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadPreview = document.getElementById('uploadPreview');
+            const processingOverlay = document.getElementById('processingOverlay');
+            const collectionsGrid = document.getElementById('collectionsGrid');
+            const clothesGrid = document.getElementById('clothesGrid');
+            const avatarTabs = document.querySelectorAll('.avatar-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const occasionFilter = document.getElementById('occasionFilter');
+            const avatarImage = document.getElementById('avatarImage');
+            const customizeAvatar = document.getElementById('customizeAvatar');
+            const saveOutfit = document.getElementById('saveOutfit');
+            const shareAvatar = document.getElementById('shareAvatar');
+            
+            // Sample collections data
+            const collections = [
+                {
+                    id: 1,
+                    name: 'Casual Collection',
+                    category: 'Casual',
+                    image: '/api/placeholder/400/320',
+                    itemCount: 12,
+                    tags: ['T-Shirts', 'Jeans', 'Sneakers']
+                },
+                {
+                    id: 2,
+                    name: 'Office Attire',
+                    category: 'Formal',
+                    image: '/api/placeholder/400/320',
+                    itemCount: 8,
+                    tags: ['Blazers', 'Shirts', 'Trousers']
+                },
+                {
+                    id: 3,
+                    name: 'Beach Vacation',
+                    category: 'Beach',
+                    image: '/api/placeholder/400/320',
+                    itemCount: 5,
+                    tags: ['Swimwear', 'Sundresses', 'Hats']
+                },
+                {
+                    id: 4,
+                    name: 'Resort Evening',
+                    category: 'Resort',
+                    image: '/api/placeholder/400/320',
+                    itemCount: 6,
+                    tags: ['Dresses', 'Sandals', 'Accessories']
+                }
+            ];
+            
+            // Sample clothing items for avatar
+            const clothingItems = [
+                { id: 1, type: 'tops', name: 'Blue T-Shirt', image: '/api/placeholder/100/100', category: 'Casual' },
+                { id: 2, type: 'tops', name: 'White Shirt', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 3, type: 'tops', name: 'Floral Blouse', image: '/api/placeholder/100/100', category: 'Beach' },
+                { id: 4, type: 'bottoms', name: 'Black Jeans', image: '/api/placeholder/100/100', category: 'Casual' },
+                { id: 5, type: 'bottoms', name: 'Navy Slacks', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 6, type: 'bottoms', name: 'White Shorts', image: '/api/placeholder/100/100', category: 'Beach' },
+                { id: 7, type: 'dresses', name: 'Cocktail Dress', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 8, type: 'dresses', name: 'Sundress', image: '/api/placeholder/100/100', category: 'Beach' },
+                { id: 9, type: 'outerwear', name: 'Black Blazer', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 10, type: 'outerwear', name: 'Denim Jacket', image: '/api/placeholder/100/100', category: 'Casual' },
+                { id: 11, type: 'shoes', name: 'White Sneakers', image: '/api/placeholder/100/100', category: 'Casual' },
+                { id: 12, type: 'shoes', name: 'Black Dress Shoes', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 13, type: 'accessories', name: 'Silver Watch', image: '/api/placeholder/100/100', category: 'Formal' },
+                { id: 14, type: 'accessories', name: 'Sunglasses', image: '/api/placeholder/100/100', category: 'Beach' },
+                { id: 15, type: 'tops', name: 'Green Sweater', image: '/api/placeholder/100/100', category: 'Casual' },
+                { id: 16, type: 'bottoms', name: 'Khaki Chinos', image: '/api/placeholder/100/100', category: 'Casual' }
+            ];
+            
+            // Sample avatars
+            const avatars = [
+                { id: 1, image: '/api/placeholder/300/450', name: 'Default' },
+                { id: 2, image: '/api/placeholder/300/450', name: 'Business' },
+                { id: 3, image: '/api/placeholder/300/450', name: 'Casual' }
+            ];
+            
+            // Current outfit
+            let currentOutfit
